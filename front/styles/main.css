@@ -1,20 +1,37 @@
+/* ============================================================
+   Gamex — main.css (тёмная тема, Newgrounds-style)
+   ============================================================ */
+
 /* ===== Палитра ===== */
 :root {
-  --orange: #ff7a1a;
+  --orange:      #ff7a1a;
   --orange-dark: #e05f00;
-  --gray-100: #f5f6f7;
-  --gray-300: #d5d8dc;
-  --gray-500: #8a9099;
-  --gray-700: #3a3f45;
-  --mint: #4fd1b3;
-  --mint-dark: #2fae91;
-  --text: #23272b;
-  --radius: 10px;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,.06);
-  --shadow-md: 0 4px 14px rgba(0,0,0,.10);
+  --mint:        #4fd1b3;
+  --mint-dark:   #2fae91;
+
+  --bg:          #14161a;
+  --surface:     #1e2128;
+  --surface-2:   #262a33;
+  --border:      #2f333d;
+  --border-hi:   #3a3f4a;
+
+  --text:        #e6e8eb;
+  --text-dim:    #a7adb7;
+  --text-mute:   #6c727d;
+
+  --radius:      10px;
+  --shadow-sm:   0 1px 3px rgba(0,0,0,.4);
+  --shadow-md:   0 6px 20px rgba(0,0,0,.5);
+
+  /* legacy-имена, чтобы audio.css не пришлось переписывать */
+  --gray-100: var(--surface);
+  --gray-300: var(--border);
+  --gray-500: var(--text-mute);
+  --gray-700: var(--text-dim);
+  --style-black: var(--surface);
+  --warm-green:  var(--mint);
 }
 
-/* Предсказуемые размеры */
 * { box-sizing: border-box; }
 
 html, body {
@@ -22,20 +39,36 @@ html, body {
   margin: 0;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   color: var(--text);
-  background: var(--gray-100);
+  background: var(--bg);
   line-height: 1.45;
 }
 
+a { color: var(--mint); }
+a:hover { color: var(--orange); }
+::selection { background: var(--orange); color: #fff; }
+
+.visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ===== Каркас страницы ===== */
 .page {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  min-height: 100dvh;      /* фолбэк для мобильных Safari/Chrome */
+  min-height: 100dvh;
 }
 
-/* ===== Верхнее меню ===== */
+/* ===== Хедер ===== */
 .header-nav-row {
-  background: var(--gray-700);
+  background: #0c0d10;
+  border-bottom: 1px solid var(--border);
   padding: 12px 20px;
   position: sticky;
   top: 0;
@@ -44,26 +77,31 @@ html, body {
 
 .header-nav-row nav {
   display: flex;
-  gap: 20px;
+  gap: 8px;
   flex-wrap: wrap;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .header-nav-row a {
-  color: var(--gray-100);
+  color: var(--text-dim);
   text-decoration: none;
   padding: 6px 12px;
   border-radius: 6px;
+  font-size: 14px;
   transition: background .2s, color .2s;
 }
 
 .header-nav-row a:hover,
-.header-nav-row a:focus-visible {
+.header-nav-row a:focus-visible,
+.header-nav-row a.active {
   background: var(--orange);
   color: #fff;
   outline: none;
 }
 
-/* ===== Основной контент ===== */
+/* ===== Содержимое ===== */
 .main-content {
   flex: 1;
   width: 100%;
@@ -78,7 +116,7 @@ html, body {
   align-items: flex-start;
 }
 
-/* ===== Левый сайдбар ===== */
+/* Сайдбар */
 .left.columns {
   width: 220px;
   flex-shrink: 0;
@@ -86,240 +124,365 @@ html, body {
 
 .newies,
 .dops {
-  background: #fff;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-left: 4px solid var(--mint);
   border-radius: 8px;
   padding: 12px;
   margin-bottom: 12px;
   box-shadow: var(--shadow-sm);
-  transition: transform .2s, box-shadow .2s;
 }
-
 .newies { border-left-color: var(--orange); }
+.newies h3, .dops h3 { margin: 0 0 6px; font-size: 15px; color: var(--text); }
+.newies p,  .dops p  { margin: 0 0 8px; font-size: 14px; color: var(--text-dim); }
+.newies img, .dops img { display: block; filter: invert(1) brightness(1.5); }
 
-.newies h3,
-.dops h3 {
-  margin: 0 0 6px;
-  font-size: 15px;
-  color: var(--gray-700);
-}
-
-.newies p,
-.dops p {
-  margin: 0 0 8px;
-  font-size: 14px;
-  color: var(--gray-500);
-}
-
-.newies img,
-.dops img { display: block; }
-
-/* ===== Main ===== */
+/* Main */
 main {
   flex: 1;
   min-width: 0;
-  background: #fff;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 16px;
   box-shadow: var(--shadow-sm);
 }
-
 main > h1 {
   margin: 0 0 16px;
   font-size: 20px;
   font-weight: 600;
-  color: var(--gray-700);
+  color: var(--text);
 }
 
-
-
-
-
-/* ===== Мозаика карточек ===== */
+/* ===== Мозаика игр ===== */
 .games-grid {
   display: grid;
   gap: 14px;
-  grid-template-columns: repeat(2, 1fr);   /* мобилка по умолчанию */
+  grid-template-columns: repeat(2, 1fr);
 }
+@media (min-width: 480px)  { .games-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 768px)  { .games-grid { grid-template-columns: repeat(4, 1fr); } }
+@media (min-width: 1024px) { .games-grid { grid-template-columns: repeat(5, 1fr); } }
+@media (min-width: 1440px) { .games-grid { grid-template-columns: repeat(6, 1fr); } }
 
-@media (min-width: 480px) {
-  .games-grid { grid-template-columns: repeat(3, 1fr); }
-}
-
-@media (min-width: 768px) {
-  .games-grid { grid-template-columns: repeat(4, 1fr); }
-}
-
-@media (min-width: 1024px) {
-  .games-grid { grid-template-columns: repeat(5, 1fr); }
-}
-
-@media (min-width: 1440px) {
-  .games-grid { grid-template-columns: repeat(6, 1fr); }
-}
-
-/* Карточка игры: обложка сверху, текст снизу */
 .game {
   display: flex;
-  flex-direction: column;         /* вертикальная раскладка */
-  background: var(--gray-100);
-  border: 1px solid var(--gray-300);
+  flex-direction: column;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
-  overflow: hidden;               /* чтобы обложка не вылезала за скруглённые углы */
+  overflow: hidden;
   cursor: pointer;
   text-decoration: none;
   color: inherit;
-  transition: transform .15s, box-shadow .15s, background .15s, border-color .15s;
+  transition: transform .15s, box-shadow .15s, border-color .15s;
 }
 
-/* Обложка — квадратная зона с иконкой по центру */
 .game-cover {
   display: flex;
   align-items: center;
   justify-content: center;
-  aspect-ratio: 1 / 1;            /* квадрат как раньше, но только для обложки */
-  background: var(--gray-100);
-  transition: background .15s;
+  aspect-ratio: 1 / 1;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
 }
-
 .game-cover img {
   width: 55%;
   height: auto;
   aspect-ratio: 1 / 1;
+  filter: invert(1) brightness(1.5);
   transition: transform .15s, filter .15s;
 }
 
-/* Текстовый блок */
 .game-info {
   padding: 8px 10px 10px;
-  background: #fff;
-  border-top: 1px solid var(--gray-300);
+  background: var(--surface);
+  border-top: 1px solid var(--border);
   transition: border-color .15s;
 }
 
-/* Заголовок игры */
 .game-title {
   margin: 0 0 2px;
   font-size: 14px;
   font-weight: 600;
-  color: var(--gray-700);
+  color: var(--text);
   line-height: 1.2;
-  /* Обрезаем в одну строку, если длинно */
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-/* Описание */
 .game-desc {
   margin: 0;
   font-size: 12px;
-  color: var(--gray-500);
+  color: var(--text-dim);
   line-height: 1.3;
-  /* Максимум 2 строки — обрезается с многоточием */
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-/* Ховер только там, где есть мышь */
 @media (hover: hover) {
   .game:hover {
-    background: #fff;
     border-color: var(--orange);
-    box-shadow: 0 4px 14px rgba(255,122,26,.25);
+    box-shadow: 0 6px 20px rgba(255,122,26,.25);
     transform: translateY(-2px);
   }
-
-  .game:hover .game-cover {
-    background: #fff;
-  }
-
   .game:hover .game-cover img {
     transform: scale(1.08);
-    filter: drop-shadow(0 0 4px var(--orange));
+    filter: invert(1) brightness(1.5) drop-shadow(0 0 4px var(--orange));
   }
-
-  .game:hover .game-info {
-    border-top-color: var(--orange);
-  }
-
-  /* Чётные — мятный акцент */
   .game:nth-child(even):hover {
     border-color: var(--mint);
-    box-shadow: 0 4px 14px rgba(79,209,179,.3);
-  }
-
-  .game:nth-child(even):hover .game-cover img {
-    filter: drop-shadow(0 0 4px var(--mint));
-  }
-
-  .game:nth-child(even):hover .game-info {
-    border-top-color: var(--mint);
+    box-shadow: 0 6px 20px rgba(79,209,179,.25);
   }
 }
 
-/* Фокус с клавиатуры */
 .game:focus-visible {
   border-color: var(--orange);
-  box-shadow: 0 0 0 3px rgba(255,122,26,.3);
+  box-shadow: 0 0 0 3px rgba(255,122,26,.35);
   outline: none;
 }
 
+/* ===== Поиск (ненавязчивый, в стиле «панели» над сеткой) ===== */
+.games-toolbar {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.games-toolbar .search {
+  flex: 1 1 240px;
+  max-width: 360px;
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 4px 4px 4px 12px;
+  transition: border-color .2s, box-shadow .2s, background .2s;
+}
+
+.search:focus-within {
+  border-color: var(--orange);
+  background: var(--surface);
+  box-shadow: 0 0 0 3px rgba(255,122,26,.18);
+}
+
+.search input[type="search"] {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  color: var(--text);
+  padding: 6px 0;
+  font-family: inherit;
+}
+
+.search input[type="search"]::placeholder { color: var(--text-mute); }
+
+.search input[type="search"]::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.search button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-mute);
+  font-size: 15px;
+  cursor: pointer;
+  transition: background .2s, color .2s, transform .1s;
+}
+
+.search button:hover {
+  background: var(--orange);
+  color: #fff;
+}
+
+.search button:active { transform: scale(.95); }
+
 /* ===== Футер ===== */
 .footer-wrapper {
-  background: var(--gray-700);
-  color: var(--gray-100);
+  background: #0c0d10;
+  color: var(--text-dim);
+  border-top: 1px solid var(--border);
   padding: 20px;
-  border-top: 3px solid var(--orange);
   text-align: center;
 }
+.footer-wrapper a { color: var(--mint); text-decoration: none; transition: color .2s; }
+.footer-wrapper a:hover { color: var(--orange); }
 
-.footer-wrapper a {
-  color: var(--mint);
-  text-decoration: none;
-  transition: color .2s;
-}
-
-.footer-wrapper a:hover {
-  color: var(--orange);
-}
-
-/* ===== Планшеты (узкие) ===== */
+/* ===== Адаптив ===== */
 @media (max-width: 900px) {
   .left.columns { width: 180px; }
 }
 
-/* ===== Телефоны ===== */
 @media (max-width: 640px) {
   .main-content { padding: 12px; }
-
-  .content-row {
-    flex-direction: column;   /* сайдбар над main */
-    gap: 12px;
-  }
-
+  .content-row { flex-direction: column; gap: 12px; }
   .left.columns {
     width: 100%;
-    display: flex;            /* карточки новостей рядом друг с другом */
+    display: flex;
     gap: 12px;
   }
-
-  .newies,
-  .dops {
-    flex: 1;
-    margin-bottom: 0;
-  }
-
+  .newies, .dops { flex: 1; margin-bottom: 0; }
   main > h1 { font-size: 18px; }
+  .games-toolbar .search { max-width: 100%; flex: 1 1 100%; }
 }
 
-/* ===== Совсем узкие (старые телефоны) ===== */
 @media (max-width: 380px) {
   .header-nav-row { padding: 10px 12px; }
-  .header-nav-row nav { gap: 8px; }
-  .header-nav-row a { padding: 5px 8px; font-size: 14px; }
+  .header-nav-row nav { gap: 4px; }
+  .header-nav-row a { padding: 5px 8px; font-size: 13px; }
+  .left.columns { flex-direction: column; }
+}
 
-  .left.columns { flex-direction: column; }   /* сайдбар снова в столбик */
+/* ============================================================
+   Лендинг (index.html)
+   ============================================================ */
+.landing {
+  flex: 1;
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 40px 20px 60px;
+}
+
+.landing-hero {
+  text-align: center;
+  padding: 60px 0 40px;
+}
+
+.landing-hero h1 {
+  margin: 0 0 12px;
+  font-size: clamp(40px, 8vw, 72px);
+  font-weight: 800;
+  letter-spacing: -1px;
+  background: linear-gradient(135deg, var(--orange), var(--mint));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.landing-tagline {
+  max-width: 560px;
+  margin: 0 auto 28px;
+  font-size: 18px;
+  color: var(--text-dim);
+}
+
+.landing-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-primary,
+.btn-secondary {
+  display: inline-block;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform .1s, background .2s, border-color .2s, color .2s;
+}
+.btn-primary {
+  background: var(--orange);
+  color: #fff;
+  border: 1px solid var(--orange);
+}
+.btn-primary:hover { background: var(--orange-dark); color: #fff; }
+.btn-secondary {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border-hi);
+}
+.btn-secondary:hover { border-color: var(--mint); color: var(--mint); }
+.btn-primary:active, .btn-secondary:active { transform: scale(.97); }
+
+.landing-features {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  margin: 40px 0;
+}
+
+.feature-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-decoration: none;
+  color: var(--text);
+  transition: transform .15s, border-color .15s, box-shadow .15s;
+}
+.feature-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--orange);
+  box-shadow: 0 8px 24px rgba(255,122,26,.2);
+  color: var(--text);
+}
+
+/* Чётные фичи — мятный акцент (как у .game и .track-card) */
+@media (hover: hover) {
+  .feature-card:nth-child(even):hover {
+    border-color: var(--mint);
+    box-shadow: 0 8px 24px rgba(79,209,179,.28);
+  }
+}
+
+.feature-icon {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 4px;
+}
+.feature-icon img { filter: invert(1) brightness(1.5); }
+
+.feature-card h2 { margin: 0; font-size: 18px; color: var(--text); }
+.feature-card p  { margin: 0; font-size: 14px; color: var(--text-dim); line-height: 1.4; }
+
+.landing-about {
+  max-width: 700px;
+  margin: 40px auto 0;
+  padding: 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--mint);
+  border-radius: var(--radius);
+}
+.landing-about h2 { margin: 0 0 10px; color: var(--text); }
+.landing-about p  { margin: 0; color: var(--text-dim); }
+
+@media (max-width: 640px) {
+  .landing { padding: 24px 12px 40px; }
+  .landing-hero { padding: 32px 0 24px; }
+  .landing-tagline { font-size: 16px; }
 }

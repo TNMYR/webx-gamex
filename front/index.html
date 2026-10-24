@@ -1,104 +1,84 @@
 <!DOCTYPE html>
 <html lang="ru">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Gamex</title>
-    <link href="styles/main.css" rel="stylesheet" />
-  </head>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gamex — главная</title>
+  <link href="styles/main.css" rel="stylesheet" />
+</head>
+<body>
+  <div class="page">
+    <header class="header-nav-row">
+      <nav>
+        <a href="./index.html" class="active">Главная</a>
+        <a href="./pages/Game.html">Games</a>
+        <a href="./pages/Audio.html">Audio</a>
+        <a href="./pages/Portal.html">Portal</a>
+        <a href="./pages/Community.html">Community</a>
+      </nav>
+    </header>
 
-  <body>
-    <div class="page">
-      <header class="header-nav-row">
-        <nav>
-          <a href="./pages/Game.html">Games</a>
-          <a href="./pages/Audio.html">Audio</a>
-          <a href="./pages/Portal.html">Portal</a>
-          <a href="./pages/Community.html">Community</a>
-        </nav>
-      </header>
-
-      <div class="main-content">
-        <div class="content-row">
-          <aside class="left columns">
-            <div class="newies" id="newies-blox">
-              <h3>Новости</h3>
-              <p>Здесь блочный элемент сбоку для срочных новостей</p>
-              <img src="icon/news-svgrepo-com.svg" width="20" height="20" alt="">
-            </div>
-            <div class="dops" id="dops-blox">
-              <h3>Допы</h3>
-              <p>Здесь допы для заполнености</p>
-              <img src="icon/news-svgrepo-com.svg" width="20" height="20" alt="">
-            </div>
-          </aside>
-
-          <main>
-            <h1>Игры</h1>
-
-            <div class="games-grid">
-              <a class="game" href="#">
-                <div class="game-cover">
-                  <img src="icon/gamepad-svgrepo-com.svg" alt="">
-                </div>
-                <div class="game-info">
-                  <h3 class="game-title">Название игры</h3>
-                  <p class="game-desc">Короткое описание в одну-две строки</p>
-                </div>
-              </a>
-              <a class="game" href="#">
-                <div class="game-cover">
-                  <img src="icon/gamepad-svgrepo-com.svg" alt="">
-                </div>
-                <div class="game-info">
-                  <h3 class="game-title">Название игры</h3>
-                  <p class="game-desc">Короткое описание в одну-две строки</p>
-                </div>
-              </a>
-              <a class="game" href="#">
-                <div class="game-cover">
-                  <img src="icon/gamepad-svgrepo-com.svg" alt="">
-                </div>
-                <div class="game-info">
-                  <h3 class="game-title">Название игры</h3>
-                  <p class="game-desc">Короткое описание в одну-две строки</p>
-                </div>
-              </a>
-              <a class="game" href="#">
-                <div class="game-cover">
-                  <img src="icon/gamepad-svgrepo-com.svg" alt="">
-                </div>
-                <div class="game-info">
-                  <h3 class="game-title">Название игры</h3>
-                  <p class="game-desc">Короткое описание в одну-две строки</p>
-                </div>
-              </a>
-              <a class="game" href="#">
-                <div class="game-cover">
-                  <img src="icon/gamepad-svgrepo-com.svg" alt="">
-                </div>
-                <div class="game-info">
-                  <h3 class="game-title">Название игры</h3>
-                  <p class="game-desc">Короткое описание в одну-две строки</p>
-                </div>
-              </a>
-              <a class="game" href="#">
-                <div class="game-cover">
-                  <img src="icon/gamepad-svgrepo-com.svg" alt="">
-                </div>
-                <div class="game-info">
-                  <h3 class="game-title">Название игры</h3>
-                  <p class="game-desc">Короткое описание в одну-две строки</p>
-                </div>
-              </a>
-            </div>
-          </main>
+    <main class="landing">
+      <section class="landing-hero">
+        <h1>Gamex</h1>
+        <p class="landing-tagline">
+          Платформа для геймеров: каталог игр, аудио-библиотека,
+          портал сообщества и обмен ресурсами.
+        </p>
+        <div class="landing-actions">
+          <a class="btn-primary" href="./pages/Game.html">Смотреть игры</a>
+          <a class="btn-secondary" href="./pages/Audio.html">Аудио-библиотека</a>
         </div>
-      </div>
+      </section>
 
-      <footer class="footer-wrapper">
-        <a href="#">Футер здесь</a>
-      </footer>
-    </div>
-  </body>
+      <section class="landing-features">
+        <a class="feature-card" href="./pages/Game.html">
+          <div class="feature-icon">
+            <img src="icon/gamepad-svgrepo-com.svg" alt="" width="48" height="48">
+          </div>
+          <h2>Игры</h2>
+          <p>Каталог игр с обложками, описаниями и рейтингами.</p>
+        </a>
+
+        <a class="feature-card" href="./pages/Audio.html">
+          <div class="feature-icon">
+            <img src="icon/music-note-4-svgrepo-com.svg" alt="" width="48" height="48">
+          </div>
+          <h2>Аудио</h2>
+          <p>Музыка, эффекты и сэмплы для твоих проектов.</p>
+        </a>
+
+        <a class="feature-card" href="./pages/Portal.html">
+          <div class="feature-icon">
+            <img src="icon/news-svgrepo-com.svg" alt="" width="48" height="48">
+          </div>
+          <h2>Портал</h2>
+          <p>Новости, анонсы и полезные материалы сообщества.</p>
+        </a>
+
+        <a class="feature-card" href="./pages/Community.html">
+          <div class="feature-icon">
+            <img src="icon/news-svgrepo-com.svg" alt="" width="48" height="48">
+          </div>
+          <h2>Сообщество</h2>
+          <p>Общайся, делись работами и находи команду.</p>
+        </a>
+      </section>
+
+      <section class="landing-about">
+        <h2>О проекте</h2>
+        <p>
+          Gamex — учебный проект по веб-программированию.
+          Внутри — четыре раздела: каталог игр, аудио-библиотека,
+          портал новостей и сообщество. Всё работает на чистом
+          HTML, CSS и Vanilla JS без сторонних фреймворков.
+        </p>
+      </section>
+    </main>
+
+    <footer class="footer-wrapper">
+      <a href="./index.html">Gamex © 2025</a>
+    </footer>
+  </div>
+</body>
 </html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Games — Gamex</title>
+  <link href="../styles/main.css" rel="stylesheet" />
+</head>
+<body>
+  <div class="page">
+    <header class="header-nav-row">
+      <nav>
+        <a href="../index.html">Главная</a>
+        <a href="./Game.html" class="active">Games</a>
+        <a href="./Audio.html">Audio</a>
+        <a href="./Portal.html">Portal</a>
+        <a href="./Community.html">Community</a>
+      </nav>
+    </header>
+
+    <div class="main-content">
+      <div class="content-row">
+        <aside class="left columns">
+          <div class="newies">
+            <h3>Новости</h3>
+            <p>Свежие анонсы и обновления каталога.</p>
+            <img src="../icon/news-svgrepo-com.svg" width="20" height="20" alt="">
+          </div>
+          <div class="dops">
+            <h3>Подборки</h3>
+            <p>Тематические коллекции игр и подсказки.</p>
+            <img src="../icon/news-svgrepo-com.svg" width="20" height="20" alt="">
+          </div>
+        </aside>
+
+        <main>
+          <h1>Игры</h1>
+
+          <!-- Тулбар: поиск + (в будущем фильтр/сортировка) -->
+          <div class="games-toolbar">
+            <form class="search" role="search" action="/search" method="get">
+              <label for="game-search" class="visually-hidden">Поиск игр</label>
+              <input
+                type="search"
+                id="game-search"
+                name="q"
+                placeholder="Поиск игр..."
+                autocomplete="off"
+              >
+              <button type="submit" aria-label="Найти">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+              </button>
+            </form>
+          </div>
+
+          <div class="games-grid">
+            <a class="game" href="#">
+              <div class="game-cover">
+                <img src="../icon/gamepad-svgrepo-com.svg" alt="">
+              </div>
+              <div class="game-info">
+                <h3 class="game-title">Название игры</h3>
+                <p class="game-desc">Короткое описание в одну-две строки</p>
+              </div>
+            </a>
+            <!-- ... ещё 5 карточек один-в-один ... -->
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <footer class="footer-wrapper">
+      <a href="../index.html">Gamex © 2025</a>
+    </footer>
+  </div>
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Audio — Gamex</title>
+  <link href="../styles/main.css" rel="stylesheet" />
+  <link href="../styles/audio.css" rel="stylesheet" />
+</head>
+<body>
+  <div class="page">
+    <header class="header-nav-row">
+      <nav>
+        <a href="../index.html">Games</a>
+        <a href="./Audio.html" class="active">Audio</a>
+        <a href="./Portal.html">Portal</a>
+        <a href="./Community.html">Community</a>
+      </nav>
+    </header>
+
+    <main class="audio-main">
+      <section class="audio-hero">
+        <h1>Аудио-библиотека</h1>
+        <p class="audio-hero-sub">Музыка, эффекты и инструменты для твоих проектов</p>
+
+        <div class="audio-toolbar">
+          <form class="search" role="search" id="audio-search-form">
+            <label for="audio-search" class="visually-hidden">Поиск треков</label>
+            <input type="search" id="audio-search"
+                   placeholder="Поиск по названию или автору..."
+                   autocomplete="off">
+            <button type="submit" aria-label="Найти">🔍</button>
+          </form>
+
+          <select id="filter-category" aria-label="Фильтр по жанру">
+            <option value="all">Все жанры</option>
+            <option value="Музыка">Музыка</option>
+            <option value="Эффекты">Эффекты</option>
+            <option value="Инструменты">Инструменты</option>
+            <option value="Лицензия">Лицензия</option>
+            <option value="Ресурсы">Ресурсы</option>
+          </select>
+
+          <select id="sort-by" aria-label="Сортировка">
+            <option value="name-asc">Название (А–Я)</option>
+            <option value="name-desc">Название (Я–А)</option>
+            <option value="bpm-asc">BPM ↑</option>
+            <option value="bpm-desc">BPM ↓</option>
+            <option value="duration-asc">Длительность ↑</option>
+            <option value="duration-desc">Длительность ↓</option>
+          </select>
+
+          <button id="open-add-modal" class="btn-add" type="button">+ Добавить трек</button>
+        </div>
+
+        <p class="audio-counter" id="audio-counter"></p>
+      </section>
+
+      <section class="tracks-grid" id="tracks-grid" aria-live="polite"></section>
+      <p class="empty-state" id="empty-state" hidden>Ничего не найдено. Попробуй изменить фильтры.</p>
+    </main>
+
+    <footer class="footer-wrapper">
+      <a href="#">Gamex © 2025</a>
+    </footer>
+  </div>
+
+  <!-- ============================================================
+       ШАБЛОН КАРТОЧКИ (клон заполняется в audio.js)
+       ============================================================ -->
+  <template id="track-card-template">
+    <article class="track-card">
+      <div class="track-cover">
+        <img src="../icon/music-note-4-svgrepo-com.svg" alt="" width="40" height="40">
+      </div>
+      <div class="track-body">
+        <div class="track-head">
+          <div>
+            <h3 class="track-title"></h3>
+            <p class="track-artist"></p>
+          </div>
+          <span class="track-cat"></span>
+        </div>
+        <p class="track-desc"></p>
+        <div class="track-meta">
+          <div><span class="meta-bpm">—</span> <small>BPM</small></div>
+          <div><span class="meta-dur">—</span> <small>сек</small></div>
+        </div>
+        <div class="track-actions">
+          <button type="button" class="btn-delete" data-action="delete">Удалить</button>
+        </div>
+      </div>
+    </article>
+  </template>
+
+  <!-- ============================================================
+       МОДАЛКА
+       ============================================================ -->
+  <div class="modal-backdrop" id="modal-backdrop" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-header">
+        <h2 id="modal-title">Добавить трек</h2>
+        <button type="button" class="modal-close" id="modal-close" aria-label="Закрыть">×</button>
+      </div>
+
+      <form id="add-track-form" novalidate>
+        <div class="form-row">
+          <label for="f-title">Название *</label>
+          <input type="text" id="f-title" name="title" required minlength="2" maxlength="60">
+          <p class="error" data-error-for="f-title"></p>
+        </div>
+
+        <div class="form-row">
+          <label for="f-artist">Автор *</label>
+          <input type="text" id="f-artist" name="artist" required minlength="2" maxlength="60">
+          <p class="error" data-error-for="f-artist"></p>
+        </div>
+
+        <div class="form-row">
+          <label for="f-category">Жанр *</label>
+          <select id="f-category" name="category" required>
+            <option value="">— выбери —</option>
+            <option value="Музыка">Музыка</option>
+            <option value="Эффекты">Эффекты</option>
+            <option value="Инструменты">Инструменты</option>
+            <option value="Лицензия">Лицензия</option>
+            <option value="Ресурсы">Ресурсы</option>
+          </select>
+          <p class="error" data-error-for="f-category"></p>
+        </div>
+
+        <div class="form-row two-cols">
+          <div>
+            <label for="f-bpm">BPM *</label>
+            <input type="number" id="f-bpm" name="bpm" required min="40" max="300" step="1">
+            <p class="error" data-error-for="f-bpm"></p>
+          </div>
+          <div>
+            <label for="f-duration">Длительность, сек *</label>
+            <input type="number" id="f-duration" name="duration" required min="1" max="3600" step="1">
+            <p class="error" data-error-for="f-duration"></p>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label for="f-desc">Описание</label>
+          <textarea id="f-desc" name="description" maxlength="160" rows="3"></textarea>
+          <p class="error" data-error-for="f-desc"></p>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" id="modal-cancel">Отмена</button>
+          <button type="submit" class="btn-submit">Сохранить</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../js/audio.js"></script>
+</body>
+</html>
