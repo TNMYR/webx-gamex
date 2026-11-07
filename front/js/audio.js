@@ -1,20 +1,7 @@
 'use strict';
 
-/* =========================================================
-   1. STATE
-   ========================================================= */
-const STORAGE_KEY = 'gamex-audio-tracks';
-
-const DEFAULT_ITEMS = [
-  { id: 'a1', title: 'Neon Drift',      artist: 'SynthWave',   category: 'Музыка',      bpm: 128, duration: 214, description: 'Синтвейв для ночных поездок' },
-  { id: 'a2', title: 'Deep Focus',      artist: 'Ambient Lab', category: 'Музыка',      bpm: 72,  duration: 305, description: 'Спокойный эмбиент для работы' },
-  { id: 'a3', title: 'Impact Hit',      artist: 'SFX Studio',  category: 'Эффекты',     bpm: 0,   duration: 3,   description: 'Мощный удар для трейлеров' },
-  { id: 'a4', title: 'Vinyl Crackle',   artist: 'LoFi Co',     category: 'Эффекты',     bpm: 0,   duration: 42,  description: 'Шум винила, лёгкий фоновый' },
-  { id: 'a5', title: 'Acoustic Guitar', artist: 'Studio One',  category: 'Инструменты', bpm: 95,  duration: 128, description: 'Семпл акустической гитары' },
-  { id: 'a6', title: 'Royalty Pack',    artist: 'Gamex Team',  category: 'Лицензия',    bpm: 0,   duration: 0,   description: 'Пакет лицензий для проектов' },
-  { id: 'a7', title: 'Drum Kit 808',    artist: 'BeatSupply',  category: 'Ресурсы',     bpm: 140, duration: 90,  description: 'Набор ударных 808' },
-  { id: 'a8', title: 'Cyber Pulse',     artist: 'SynthWave',   category: 'Музыка',      bpm: 112, duration: 198, description: 'Энергичный киберпанк-трек' },
-];
+const API_URL = "/api/tracks";
+const CACHE_KEY = 'gamex-audio-tracks-cache';
 
 const state = {
   items: [],
@@ -23,29 +10,7 @@ const state = {
   sortBy: 'name-asc',
 };
 
-/* =========================================================
-   2. STORAGE
-   ========================================================= */
-function loadFromStorage() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return DEFAULT_ITEMS.map(x => ({ ...x }));
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) && parsed.length >= 0
-      ? parsed
-      : DEFAULT_ITEMS.map(x => ({ ...x }));
-  } catch {
-    return DEFAULT_ITEMS.map(x => ({ ...x }));
-  }
-}
-
-function saveToStorage() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state.items));
-}
-
-/* =========================================================
-   3. DOM
-   ========================================================= */
+// DOM элементы
 const grid         = document.getElementById('tracks-grid');
 const emptyState   = document.getElementById('empty-state');
 const counter      = document.getElementById('audio-counter');
@@ -58,19 +23,73 @@ const modalClose   = document.getElementById('modal-close');
 const modalCancel  = document.getElementById('modal-cancel');
 const openModalBtn = document.getElementById('open-add-modal');
 const form         = document.getElementById('add-track-form');
-
+const refreshBtn   = document.getElementById('refresh-btn'); // Добавим в HTML
 const cardTemplate = document.getElementById('track-card-template');
 
-/* =========================================================
-   4. РЕНДЕР КАРТОЧКИ ИЗ <template>
-   ========================================================= */
-function buildCard(item) {
-  // Клонируем содержимое шаблона
-  const node = cardTemplate.content.firstElementChild.cloneNode(true);
+// =========================================================
+// 1. API + КЭШ
+// =========================================================
 
+async function fetchTracks() {
+  if (refreshBtn) {
+    refreshBtn.disabled = true;
+    refreshBtn.textContent = 'Загрузка...';
+  }
+
+  try {
+    const r = await fetch(API_URL);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const data = await r.json();
+    
+    state.items = data;
+    localStorage.setItem(CACHE_KEY, JSON.stringify(data)); // обновляем кэш
+    render();
+  } catch (e) {
+    console.error('Ошибка загрузки треков:', e);
+    // Если сервер лежит, показываем кэш (если он есть)
+    const cached = localStorage.getItem(CACHE_KEY);
+    if (cached) {
+      state.items = JSON.parse(cached);
+      render();
+      alert('Сервер недоступен. Показаны данные из кэша.');
+    } else {
+      grid.innerHTML = `<p style="color:red">Не удалось подключиться к серверу: ${e.message}</p>`;
+    }
+  } finally {
+    if (refreshBtn) {
+      refreshBtn.disabled = false;
+      refreshBtn.textContent = 'Обновить';
+    }
+  }
+}
+
+async function createTrackOnServer(data) {
+  const r = await fetch(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  
+  if (!r.ok) {
+    const err = await r.json().catch(() => ({}));
+    throw new Error(err.detail ? JSON.stringify(err.detail) : `Ошибка создания: ${r.status}`);
+  }
+  return await r.json();
+}
+
+async function deleteTrackOnServer(id) {
+  const r = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+  if (r.status !== 204) throw new Error(`Ошибка удаления: ${r.status}`);
+}
+
+// =========================================================
+// 2. РЕНДЕР И ФИЛЬТРЫ
+// =========================================================
+
+function buildCard(item) {
+  const node = cardTemplate.content.firstElementChild.cloneNode(true);
   node.dataset.id = item.id;
 
-  // Заполняем через textContent (безопасно)
   node.querySelector('.track-title').textContent  = item.title;
   node.querySelector('.track-artist').textContent = item.artist;
   node.querySelector('.track-cat').textContent    = item.category;
@@ -79,7 +98,6 @@ function buildCard(item) {
   node.querySelector('.meta-bpm').textContent = item.bpm > 0 ? item.bpm : '—';
   node.querySelector('.meta-dur').textContent = item.duration > 0 ? item.duration : '—';
 
-  // Иконка по категории — подставляем svg из icon/
   const coverImg = node.querySelector('.track-cover img');
   const iconMap = {
     'Музыка':      '../icon/music-note-4-svgrepo-com.svg',
@@ -89,14 +107,10 @@ function buildCard(item) {
     'Ресурсы':     '../icon/gamepad-svgrepo-com.svg',
   };
   coverImg.src = iconMap[item.category] || '../icon/music-note-4-svgrepo-com.svg';
-  coverImg.alt = item.category;
-
+  
   return node;
 }
 
-/* =========================================================
-   5. ФИЛЬТР + СОРТИРОВКА
-   ========================================================= */
 function getVisibleItems() {
   let result = [...state.items];
 
@@ -125,39 +139,50 @@ function getVisibleItems() {
   return result;
 }
 
-/* =========================================================
-   6. RENDER
-   ========================================================= */
 function render() {
   const visible = getVisibleItems();
-
   grid.innerHTML = '';
+  
+  if (visible.length === 0) {
+    emptyState.hidden = false;
+    counter.textContent = `Показано 0 из ${state.items.length}`;
+    return;
+  }
+
+  emptyState.hidden = true;
   const frag = document.createDocumentFragment();
   visible.forEach(item => frag.append(buildCard(item)));
   grid.append(frag);
-
-  emptyState.hidden = visible.length !== 0;
   counter.textContent = `Показано ${visible.length} из ${state.items.length}`;
 }
 
-/* =========================================================
-   7. УДАЛЕНИЕ — делегирование
-   ========================================================= */
-grid.addEventListener('click', (e) => {
+// =========================================================
+// 3. СОБЫТИЯ
+// =========================================================
+
+grid.addEventListener('click', async (e) => {
   const btn = e.target.closest('button[data-action="delete"]');
   if (!btn) return;
 
   const card = btn.closest('.track-card');
   if (!card) return;
 
-  state.items = state.items.filter(it => it.id !== card.dataset.id);
-  saveToStorage();
-  render();
+  if (!confirm('Удалить этот трек из базы данных?')) return;
+
+  try {
+    btn.disabled = true;
+    btn.textContent = 'Удаление...';
+    await deleteTrackOnServer(card.dataset.id);
+    state.items = state.items.filter(it => String(it.id) !== String(card.dataset.id));
+    localStorage.setItem(CACHE_KEY, JSON.stringify(state.items));
+    render();
+  } catch (err) {
+    alert('Не удалось удалить: ' + err.message);
+    btn.disabled = false;
+    btn.textContent = 'Удалить';
+  }
 });
 
-/* =========================================================
-   8. ФИЛЬТРЫ
-   ========================================================= */
 searchInput.addEventListener('input', (e) => {
   state.searchQuery = e.target.value;
   render();
@@ -179,35 +204,26 @@ sortSel.addEventListener('change', (e) => {
   render();
 });
 
-/* =========================================================
-   9. МОДАЛКА
-   ========================================================= */
+// Модалка
 function openModal() {
   modal.hidden = false;
   form.reset();
   clearErrors();
   document.getElementById('f-title').focus();
 }
-
-function closeModal() {
-  modal.hidden = true;
-}
+function closeModal() { modal.hidden = true; }
 
 openModalBtn.addEventListener('click', openModal);
 modalClose.addEventListener('click', closeModal);
 modalCancel.addEventListener('click', closeModal);
+modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.hidden) closeModal(); });
 
-modal.addEventListener('click', (e) => {
-  if (e.target === modal) closeModal();
-});
+if (refreshBtn) {
+  refreshBtn.addEventListener('click', fetchTracks);
+}
 
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && !modal.hidden) closeModal();
-});
-
-/* =========================================================
-   10. ВАЛИДАЦИЯ
-   ========================================================= */
+// Валидация и отправка формы
 function clearErrors() {
   form.querySelectorAll('.error').forEach(el => (el.textContent = ''));
   form.querySelectorAll('.invalid').forEach(el => el.classList.remove('invalid'));
@@ -233,7 +249,7 @@ function validateField(input) {
   return false;
 }
 
-form.addEventListener('submit', (e) => {
+form.addEventListener('submit', async (e) => {
   e.preventDefault();
   clearErrors();
 
@@ -251,65 +267,48 @@ form.addEventListener('submit', (e) => {
 
   const data = new FormData(form);
   const newItem = {
-    id:          't' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
     title:       String(data.get('title')).trim(),
     artist:      String(data.get('artist')).trim(),
     category:    String(data.get('category')),
     bpm:         Number(data.get('bpm')),
     duration:    Number(data.get('duration')),
-    description: String(data.get('description') || '').trim(),
+    description: String(data.get('description') || '').trim() || null,
   };
 
-  state.items.push(newItem);
-  saveToStorage();
-  closeModal();
-  render();
+  const submitBtn = form.querySelector('.btn-submit');
+  try {
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Сохранение...';
+    
+    const created = await createTrackOnServer(newItem);
+    state.items.push(created);
+    localStorage.setItem(CACHE_KEY, JSON.stringify(state.items));
+    
+    closeModal();
+    render();
+  } catch (err) {
+    alert('Ошибка при создании: ' + err.message);
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Сохранить';
+  }
 });
 
-const API = "http://127.0.0.1:8000/api/tracks";
-const LS_KEY = "gamex_tracks_cache";
-
-async function loadTracks() {
-  // 1. Мгновенно показать кэш (из ЛР2)
-  const cached = JSON.parse(localStorage.getItem(LS_KEY) || "[]");
-  if (cached.length) renderTracks(cached);
-
-  // 2. Подтянуть актуальное из БД (требование ЛР3)
-  try {
-    const r = await fetch(API);
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    const fresh = await r.json();
-    renderTracks(fresh);
-    localStorage.setItem(LS_KEY, JSON.stringify(fresh)); // обновляем кэш
-  } catch (e) {
-    console.warn("Backend недоступен, показываем кэш:", e.message);
-  }
-}
-
-
-async function createTrack(data) {
-  const r = await fetch(API, { method: "POST", headers: {...}, body: JSON.stringify(data) });
-  if (!r.ok) throw new Error(`Ошибка создания: ${r.status}`);
-  const created = await r.json();
-  await loadTracks(); // перезапишет кэш из БД
-  return created;
-}
-
-async function deleteTrack(id) {
-  const r = await fetch(`${API}/${id}`, { method: "DELETE" });
-  if (r.status !== 204) throw new Error(`Ошибка удаления: ${r.status}`);
-  await loadTracks();
-}
-
-
-/* =========================================================
-   11. INIT
-   ========================================================= */
+// =========================================================
+// 4. ИНИЦИАЛИЗАЦИЯ
+// =========================================================
 function init() {
-  state.items = loadFromStorage();
-  render();
+  // 1. Показываем кэш, если он есть (мгновенная отрисовка)
+  const cached = localStorage.getItem(CACHE_KEY);
+  if (cached) {
+    try {
+      state.items = JSON.parse(cached);
+      render();
+    } catch(e) {}
+  }
+  
+  // 2. Запрашиваем актуальные данные с сервера
+  fetchTracks();
 }
-
-
 
 init();

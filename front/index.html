@@ -10,11 +10,11 @@
   <div class="page">
     <header class="header-nav-row">
       <nav>
-        <a href="./index.html" class="active">Главная</a>
-        <a href="./pages/Game.html">Games</a>
-        <a href="./pages/Audio.html">Audio</a>
-        <a href="./pages/Portal.html">Portal</a>
-        <a href="./pages/Community.html">Community</a>
+        <a href="/" class="active">Главная</a>
+        <a href="/pages/Game.html">Игры</a>
+        <a href="/pages/Audio.html">Аудио</a>
+        <a href="/pages/Portal.html">Портал</a>
+        <a href="/pages/Community.html">Сообщество</a>
       </nav>
     </header>
 
@@ -65,14 +65,14 @@
         </a>
       </section>
 
-      <section class="landing-about">
-        <h2>О проекте</h2>
-        <p>
-          Gamex — учебный проект по веб-программированию.
-          Внутри — четыре раздела: каталог игр, аудио-библиотека,
-          портал новостей и сообщество. Всё работает на чистом
-          HTML, CSS и Vanilla JS без сторонних фреймворков.
-        </p>
+      <section class="landing-about" id="stats" style="margin-top: 20px; border-left-color: var(--orange);">
+        <h2>Статистика проекта</h2>
+        <p>Данные загружаются напрямую из базы данных:</p>
+        <ul style="list-style: none; padding: 0; display: flex; gap: 20px; flex-wrap: wrap; margin-top: 10px;">
+          <li>🎮 Игр (треков): <strong id="stat-games" style="color: var(--orange);">...</strong></li>
+          <li>📰 Новостей: <strong id="stat-news" style="color: var(--mint);">...</strong></li>
+          <li>💬 Постов: <strong id="stat-posts" style="color: var(--mint);">...</strong></li>
+        </ul>
       </section>
     </main>
 
@@ -80,5 +80,26 @@
       <a href="./index.html">Gamex © 2025</a>
     </footer>
   </div>
+    <script>
+    async function loadStats() {
+      const API_BASE = "http://127.0.0.1:8000/api";
+      try {
+        const [tracks, news, posts] = await Promise.all([
+          fetch(`${API_BASE}/tracks`).then(r => r.json()),
+          fetch(`${API_BASE}/news`).then(r => r.json()),
+          fetch(`${API_BASE}/posts`).then(r => r.json())
+        ]);
+        document.getElementById('stat-games').textContent = tracks.length;
+        document.getElementById('stat-news').textContent = news.length;
+        document.getElementById('stat-posts').textContent = posts.length;
+      } catch (e) {
+        console.warn('Бэкенд недоступен', e);
+        document.getElementById('stat-games').textContent = 'нет связи';
+        document.getElementById('stat-news').textContent = 'нет связи';
+        document.getElementById('stat-posts').textContent = 'нет связи';
+      }
+    }
+    document.addEventListener('DOMContentLoaded', loadStats);
+  </script>
 </body>
 </html>

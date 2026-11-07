@@ -10,11 +10,11 @@
   <div class="page">
     <header class="header-nav-row">
       <nav>
-        <a href="../index.html">Главная</a>
-        <a href="./Game.html" class="active">Games</a>
-        <a href="./Audio.html">Audio</a>
-        <a href="./Portal.html">Portal</a>
-        <a href="./Community.html">Community</a>
+        <a href="/" class="active">Главная</a>
+        <a href="/pages/Game.html">Игры</a>
+        <a href="/pages/Audio.html">Аудио</a>
+        <a href="/pages/Portal.html">Портал</a>
+        <a href="/pages/Community.html">Сообщество</a>
       </nav>
     </header>
 
@@ -34,41 +34,22 @@
         </aside>
 
         <main>
-          <h1>Игры</h1>
-
-          <!-- Тулбар: поиск + (в будущем фильтр/сортировка) -->
+          <h1>Каталог игр</h1>
           <div class="games-toolbar">
-            <form class="search" role="search" action="/search" method="get">
+            <form class="search" role="search" id="game-search-form">
               <label for="game-search" class="visually-hidden">Поиск игр</label>
-              <input
-                type="search"
-                id="game-search"
-                name="q"
-                placeholder="Поиск игр..."
-                autocomplete="off"
-              >
+              <input type="search" id="game-search" placeholder="Поиск игр..." autocomplete="off">
               <button type="submit" aria-label="Найти">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor" stroke-width="2"
-                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <circle cx="11" cy="11" r="8"></circle>
                   <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
               </button>
             </form>
           </div>
-
-          <div class="games-grid">
-            <a class="game" href="#">
-              <div class="game-cover">
-                <img src="../icon/gamepad-svgrepo-com.svg" alt="">
-              </div>
-              <div class="game-info">
-                <h3 class="game-title">Название игры</h3>
-                <p class="game-desc">Короткое описание в одну-две строки</p>
-              </div>
-            </a>
-            <!-- ... ещё 5 карточек один-в-один ... -->
+          
+          <div class="games-grid" id="games-grid">
+            <p>Загрузка игр с сервера...</p>
           </div>
         </main>
       </div>
@@ -78,5 +59,56 @@
       <a href="../index.html">Gamex © 2025</a>
     </footer>
   </div>
+
+  <script>
+    // Используем треки как "игры" для демонстрации динамики, 
+    // пока в бэкенде нет сущности Game.
+    const GAMES_API = "/api/games";
+    let allGames = [];
+
+    async function loadGames() {
+      const grid = document.getElementById('games-grid');
+      try {
+        const r = await fetch(GAMES_API);
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        allGames = await r.json();
+        renderGames(allGames);
+      } catch (e) {
+        grid.innerHTML = `<p style="color: #ff6b6b; grid-column: 1/-1;">Не удалось загрузить игры с сервера: ${e.message}</p>`;
+      }
+    }
+
+    function renderGames(items) {
+      const grid = document.getElementById('games-grid');
+      if (items.length === 0) {
+        grid.innerHTML = `<p style="grid-column: 1/-1; color: var(--text-mute);">В базе данных пока нет игр (треков).</p>`;
+        return;
+      }
+      grid.innerHTML = items.map(item => `
+        <a class="game" href="#">
+          <div class="game-cover">
+            <img src="../icon/gamepad-svgrepo-com.svg" alt="">
+          </div>
+          <div class="game-info">
+            <h3 class="game-title" title="${item.title}">${item.title}</h3>
+            <p class="game-desc">${item.artist} · ${item.category}</p>
+          </div>
+        </a>
+      `).join('');
+    }
+
+    document.getElementById('game-search').addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase();
+      const filtered = allGames.filter(g => 
+        g.title.toLowerCase().includes(q) || 
+        g.artist.toLowerCase().includes(q)
+      );
+      renderGames(filtered);
+    });
+
+    document.getElementById('game-search-form').addEventListener('submit', (e) => e.preventDefault());
+
+    loadGames();
+  </script>
 </body>
 </html>
