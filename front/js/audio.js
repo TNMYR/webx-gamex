@@ -266,6 +266,42 @@ form.addEventListener('submit', (e) => {
   render();
 });
 
+const API = "http://127.0.0.1:8000/api/tracks";
+const LS_KEY = "gamex_tracks_cache";
+
+async function loadTracks() {
+  // 1. Мгновенно показать кэш (из ЛР2)
+  const cached = JSON.parse(localStorage.getItem(LS_KEY) || "[]");
+  if (cached.length) renderTracks(cached);
+
+  // 2. Подтянуть актуальное из БД (требование ЛР3)
+  try {
+    const r = await fetch(API);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const fresh = await r.json();
+    renderTracks(fresh);
+    localStorage.setItem(LS_KEY, JSON.stringify(fresh)); // обновляем кэш
+  } catch (e) {
+    console.warn("Backend недоступен, показываем кэш:", e.message);
+  }
+}
+
+
+async function createTrack(data) {
+  const r = await fetch(API, { method: "POST", headers: {...}, body: JSON.stringify(data) });
+  if (!r.ok) throw new Error(`Ошибка создания: ${r.status}`);
+  const created = await r.json();
+  await loadTracks(); // перезапишет кэш из БД
+  return created;
+}
+
+async function deleteTrack(id) {
+  const r = await fetch(`${API}/${id}`, { method: "DELETE" });
+  if (r.status !== 204) throw new Error(`Ошибка удаления: ${r.status}`);
+  await loadTracks();
+}
+
+
 /* =========================================================
    11. INIT
    ========================================================= */
@@ -273,5 +309,7 @@ function init() {
   state.items = loadFromStorage();
   render();
 }
+
+
 
 init();

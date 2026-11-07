@@ -1,0 +1,31 @@
+<form id="post-form">
+  <input name="author" placeholder="Твой ник" required minlength="2">
+  <textarea name="message" placeholder="Сообщение" required maxlength="1000"></textarea>
+  <button type="submit">Отправить</button>
+</form>
+<div id="posts-list"></div>
+<script>
+const POSTS_API = "http://127.0.0.1:8000/api/posts";
+async function loadPosts() {
+  const r = await fetch(POSTS_API);
+  const items = await r.json();
+  document.getElementById("posts-list").innerHTML = items.map(p => `
+    <article class="post-card">
+      <strong>${p.author}</strong>
+      <p>${p.message}</p>
+      <small>${new Date(p.created_at).toLocaleString()}</small>
+    </article>
+  `).join("");
+}
+document.getElementById("post-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const r = await fetch(POSTS_API, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ author: fd.get("author"), message: fd.get("message") }),
+  });
+  if (r.ok) { e.target.reset(); loadPosts(); }
+});
+loadPosts();
+</script>

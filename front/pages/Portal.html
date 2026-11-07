@@ -1,0 +1,39 @@
+<section class="news-section">
+  <h2>Новости</h2>
+  <form id="news-form">
+    <input name="title" placeholder="Заголовок" required minlength="3">
+    <input name="author" placeholder="Автор" required minlength="2">
+    <textarea name="content" placeholder="Текст" required></textarea>
+    <button type="submit">Добавить</button>
+  </form>
+  <div id="news-list"></div>
+</section>
+<script>
+const NEWS_API = "http://127.0.0.1:8000/api/news";
+async function loadNews() {
+  const r = await fetch(NEWS_API);
+  const items = await r.json();
+  document.getElementById("news-list").innerHTML = items.map(n => `
+    <article class="news-card">
+      <h3>${n.title}</h3>
+      <p>${n.content}</p>
+      <small>${n.author} · ${new Date(n.published_at).toLocaleString()}</small>
+    </article>
+  `).join("");
+}
+document.getElementById("news-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const r = await fetch(NEWS_API, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      title: fd.get("title"),
+      author: fd.get("author"),
+      content: fd.get("content"),
+    }),
+  });
+  if (r.ok) { e.target.reset(); loadNews(); }
+});
+loadNews();
+</script>
